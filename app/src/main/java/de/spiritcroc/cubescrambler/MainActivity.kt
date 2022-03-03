@@ -10,12 +10,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import com.caverock.androidsvg.SVG
 import de.spiritcroc.cubescrambler.ui.theme.CubeScramblerTheme
@@ -85,9 +88,9 @@ fun ScrambleButton(viewModel: ScramblerViewModel,
 
 @Composable
 fun ScrambleSelection(viewModel: ScramblerViewModel, listState: LazyListState) {
-    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.padding(4.dp)) {
         for (puzzle in puzzles) {
-            Column {
+            Column(modifier = Modifier.padding(4.dp)) {
                 ScrambleButton(viewModel, puzzle.key, puzzle.value, listState)
             }
         }
@@ -97,7 +100,9 @@ fun ScrambleSelection(viewModel: ScramblerViewModel, listState: LazyListState) {
 @Composable
 fun Scramble(puzzle: Puzzle, scramble: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(scramble)
+        SelectionContainer {
+            Text(scramble, fontSize = 30.sp, modifier = Modifier.padding(8.dp))
+        }
         ScrambleImage(puzzle, scramble)
     }
 }
