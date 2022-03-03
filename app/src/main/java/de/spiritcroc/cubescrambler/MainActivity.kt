@@ -48,10 +48,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             CubeScramblerTheme {
                 // A surface container using the 'background' color from the theme
-                //Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-                //}
-                //ScrambleSelection(min = 2, max = 7)
-                ScrambleArea(viewModel)
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
+                    ScrambleArea(viewModel)
+                }
             }
         }
     }
