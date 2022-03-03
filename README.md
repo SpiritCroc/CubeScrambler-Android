@@ -6,7 +6,6 @@ in order to quickly generate scramble instructions and previews for a selection 
 ## TODO
 
 - [ ] Icon
-- [ ] Theming
 - [ ] Layout paddings and better arrangement of scramble buttons (FlexBox layout?)
 - [ ] Better canvas sizing for drawing scrambles
 - [ ] Loading animation during generation of new scrambles
