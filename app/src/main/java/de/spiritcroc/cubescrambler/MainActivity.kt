@@ -22,12 +22,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import com.caverock.androidsvg.SVG
 import de.spiritcroc.cubescrambler.ui.theme.CubeScramblerTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.worldcubeassociation.tnoodle.puzzle.CubePuzzle
 import org.worldcubeassociation.tnoodle.scrambles.Puzzle
-import org.worldcubeassociation.tnoodle.svglite.Svg
 import kotlin.random.Random
 import kotlin.random.asJavaRandom
 
@@ -57,12 +57,16 @@ class MainActivity : ComponentActivity() {
 }
 
 class ScramblerViewModel(val random: Random = Random(System.currentTimeMillis()),
-                         initialScrambles: List<Pair<Puzzle, String>> = listOf()) : ViewModel() {
-    val scrambles: MutableStateFlow<List<Pair<Puzzle, String>>> = MutableStateFlow(initialScrambles)
+                         initialScrambles: List<ScrambleInfo> = listOf()) : ViewModel() {
+    val scrambles: MutableStateFlow<List<ScrambleInfo>> = MutableStateFlow(initialScrambles)
 }
 
-fun generateScramblePair(puzzle: Puzzle, random: Random): Pair<Puzzle, String> {
-    return puzzle to puzzle.generateWcaScramble(random.asJavaRandom())
+data class ScrambleInfo(val puzzle: Puzzle, val scramble: String, val svg: SVG)
+
+fun generateScramble(puzzle: Puzzle, random: Random): ScrambleInfo {
+    val scramble = puzzle.generateWcaScramble(random.asJavaRandom())
+    val svg = SVG.getFromString(puzzle.drawScramble(scramble, null).toString())
+    return ScrambleInfo(puzzle, scramble, svg)
 }
 
 @Composable
@@ -70,14 +74,17 @@ fun ScrambleButton(viewModel: ScramblerViewModel,
                    puzzleName: String,
                    puzzle: Puzzle,
                    listState: LazyListState) {
-    val coroutineScope = rememberCoroutineScope()
+    val uiScope = rememberCoroutineScope()
+    val bgScope = rememberCoroutineScope { Dispatchers.IO }
     Button(onClick = {
-        coroutineScope.launch {
+        bgScope.launch {
             viewModel.scrambles.emit(listOf(
-                generateScramblePair(puzzle, viewModel.random),
+                generateScramble(puzzle, viewModel.random),
                 *viewModel.scrambles.value.toTypedArray()
             ))
-            listState.animateScrollToItem(0, 0)
+            uiScope.launch {
+                listState.animateScrollToItem(0, 0)
+            }
         }
     }) {
         Text(puzzleName)
@@ -97,27 +104,25 @@ fun ScrambleSelection(viewModel: ScramblerViewModel, listState: LazyListState) {
 }
 
 @Composable
-fun Scramble(puzzle: Puzzle, scramble: String) {
+fun Scramble(scramble: ScrambleInfo) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SelectionContainer {
-            Text(scramble, fontSize = 30.sp, modifier = Modifier.padding(8.dp))
+            Text(scramble.scramble, fontSize = 30.sp, modifier = Modifier.padding(8.dp))
         }
-        ScrambleImage(puzzle, scramble)
+        ScrambleImage(scramble)
     }
 }
 
 @Composable
-fun ScrambleImage(puzzle: Puzzle, scramble: String) {
-    val wcaSvg: Svg = puzzle.drawScramble(scramble, null)
-    val svg: SVG = SVG.getFromString(wcaSvg.toString())
+fun ScrambleImage(scramble: ScrambleInfo) {
     Canvas(modifier = Modifier
-        .aspectRatio(svg.documentAspectRatio)
+        .aspectRatio(scramble.svg.documentAspectRatio)
         .fillMaxWidth(),
         onDraw = {
             this.drawIntoCanvas { canvas ->
-                val scale = 900f/svg.documentWidth
+                val scale = 900f/scramble.svg.documentWidth
                 canvas.scale(scale, scale)
-                svg.renderToCanvas(canvas.nativeCanvas)
+                scramble.svg.renderToCanvas(canvas.nativeCanvas)
             }
         }
     )
@@ -127,8 +132,8 @@ fun ScrambleImage(puzzle: Puzzle, scramble: String) {
 fun Scrambles(viewModel: ScramblerViewModel, listState: LazyListState) {
     val currentList = viewModel.scrambles.asStateFlow().collectAsState()
     LazyColumn(state = listState, modifier = Modifier.fillMaxWidth()) {
-        items(currentList.value) { ps ->
-            Scramble(ps.first, ps.second)
+        items(currentList.value) { scramble ->
+            Scramble(scramble)
         }
     }
 }
