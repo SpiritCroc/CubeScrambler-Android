@@ -8,6 +8,4 @@ in order to quickly generate scramble instructions and previews for a selection 
 - [ ] Icon
 - [ ] Layout paddings and better arrangement of scramble buttons (FlexBox layout?)
 - [ ] Better canvas sizing for drawing scrambles
-- [ ] Loading animation during generation of new scrambles
-- [ ] Do not allow pressing buttons while already generating a new scramble
 - [ ] Add other puzzles supported by the lib
