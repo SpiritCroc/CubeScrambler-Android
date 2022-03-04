@@ -103,11 +103,23 @@ fun ScrambleButton(viewModel: ScramblerViewModel,
 
 @Composable
 fun ScrambleSelection(viewModel: ScramblerViewModel, listState: LazyListState) {
+    // Scramble buttons
     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.padding(4.dp)) {
         for (puzzle in puzzles) {
             Column(modifier = Modifier.padding(4.dp)) {
                 ScrambleButton(viewModel, puzzle.key, puzzle.value, listState)
             }
+        }
+    }
+    // Loading indicator
+    Row(modifier = Modifier.fillMaxWidth()) {
+        val modifier = Modifier
+            .fillMaxWidth()
+            .height(3.dp)
+        if (viewModel.generatingScramble.collectAsState().value) {
+            LinearProgressIndicator(modifier = modifier)
+        } else {
+            Spacer(modifier = modifier)
         }
     }
 }
