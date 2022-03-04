@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
 class ScramblerViewModel(val random: Random = Random(System.currentTimeMillis()),
                          initialScrambles: List<ScrambleInfo> = listOf()) : ViewModel() {
     val scrambles: MutableStateFlow<List<ScrambleInfo>> = MutableStateFlow(initialScrambles)
+    val generatingScramble: MutableStateFlow<Boolean> = MutableStateFlow(false)
 }
 
 data class ScrambleInfo(val puzzle: Puzzle, val scramble: String, val svg: SVG)
@@ -78,12 +79,20 @@ fun ScrambleButton(viewModel: ScramblerViewModel,
     val bgScope = rememberCoroutineScope { Dispatchers.IO }
     Button(onClick = {
         bgScope.launch {
-            viewModel.scrambles.emit(listOf(
-                generateScramble(puzzle, viewModel.random),
-                *viewModel.scrambles.value.toTypedArray()
-            ))
-            uiScope.launch {
-                listState.animateScrollToItem(0, 0)
+            if (viewModel.generatingScramble.compareAndSet(expect = false, update = true)) {
+                try {
+                    viewModel.scrambles.emit(
+                        listOf(
+                            generateScramble(puzzle, viewModel.random),
+                            *viewModel.scrambles.value.toTypedArray()
+                        )
+                    )
+                    uiScope.launch {
+                        listState.animateScrollToItem(0, 0)
+                    }
+                } finally {
+                    viewModel.generatingScramble.emit(false)
+                }
             }
         }
     }) {
