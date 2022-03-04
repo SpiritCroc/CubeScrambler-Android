@@ -126,11 +126,13 @@ fun ScrambleSelection(viewModel: ScramblerViewModel, listState: LazyListState) {
 
 @Composable
 fun Scramble(scramble: ScrambleInfo) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        SelectionContainer {
-            Text(scramble.scramble, fontSize = 30.sp, modifier = Modifier.padding(8.dp))
+    Card(modifier = Modifier.padding(4.dp)) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            SelectionContainer {
+                Text(scramble.scramble, fontSize = 30.sp, modifier = Modifier.padding(8.dp))
+            }
+            ScrambleImage(scramble)
         }
-        ScrambleImage(scramble)
     }
 }
 
