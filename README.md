@@ -7,5 +7,4 @@ in order to quickly generate scramble instructions and previews for a selection 
 
 - [ ] Icon
 - [ ] Layout paddings and better arrangement of scramble buttons (FlexBox layout?)
-- [ ] Better canvas sizing for drawing scrambles
 - [ ] Add other puzzles supported by the lib

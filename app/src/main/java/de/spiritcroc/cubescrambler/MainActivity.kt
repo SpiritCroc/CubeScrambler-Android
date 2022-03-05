@@ -13,9 +13,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -138,17 +140,24 @@ fun Scramble(scramble: ScrambleInfo) {
 
 @Composable
 fun ScrambleImage(scramble: ScrambleInfo) {
-    Canvas(modifier = Modifier
-        .aspectRatio(scramble.svg.documentAspectRatio)
-        .fillMaxWidth(),
-        onDraw = {
-            this.drawIntoCanvas { canvas ->
-                val scale = 900f/scramble.svg.documentWidth
-                canvas.scale(scale, scale)
-                scramble.svg.renderToCanvas(canvas.nativeCanvas)
+    // Make the image fill the width in portrait mode, and use the same size for landscape
+    // (but subtract some padding)
+    val width = 1.dp * LocalConfiguration.current.smallestScreenWidthDp - 32.dp
+    val height = width / scramble.svg.documentAspectRatio
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Canvas(modifier = Modifier
+            .align(Alignment.Center)
+            .width(width)
+            .height(height),
+            onDraw = {
+                this.drawIntoCanvas { canvas ->
+                    val scale = height.toPx() / scramble.svg.documentHeight
+                    canvas.scale(scale, scale)
+                    scramble.svg.renderToCanvas(canvas.nativeCanvas)
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable
