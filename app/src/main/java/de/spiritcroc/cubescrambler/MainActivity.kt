@@ -5,11 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -41,6 +43,11 @@ val puzzles = mapOf(
     "5x5" to CubePuzzle(5),
     "6x6" to CubePuzzle(6),
     "7x7" to CubePuzzle(7),
+    /*
+    "8x8" to CubePuzzle(8),
+    "9x9" to CubePuzzle(9),
+    "10x10" to CubePuzzle(10),
+     */
 )
 
 class MainActivity : ComponentActivity() {
@@ -106,7 +113,8 @@ fun ScrambleButton(viewModel: ScramblerViewModel,
 @Composable
 fun ScrambleSelection(viewModel: ScramblerViewModel, listState: LazyListState) {
     // Scramble buttons
-    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.padding(4.dp)) {
+    val scrollState = rememberScrollState()
+    Row(modifier = Modifier.padding(4.dp).horizontalScroll(scrollState)) {
         for (puzzle in puzzles) {
             Column(modifier = Modifier.padding(4.dp)) {
                 ScrambleButton(viewModel, puzzle.key, puzzle.value, listState)
